@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Локальный конфигуратор клиентских прокси-профилей."
+    />
+    <title>Routecraft - Конфигуратор профилей</title>
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div>
+            <strong>Routecraft</strong>
+            <small>profile studio</small>
+          </div>
+        </div>
+
+        <nav class="main-nav" aria-label="Разделы">
+          <button class="nav-item active" data-view="profiles" type="button">
+            <i data-lucide="radio-tower"></i><span>Профили</span>
+          </button>
+          <button class="nav-item" data-view="composer" type="button">
+            <i data-lucide="sliders-horizontal"></i><span>Конфигуратор</span>
+          </button>
+          <button class="nav-item" data-view="templates" type="button">
+            <i data-lucide="layers-3"></i><span>Шаблоны</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <div class="security-note">
+            <i data-lucide="shield-check"></i>
+            <div><b>Локальная работа</b><span>Ключи не отправляются в сеть</span></div>
+          </div>
+          <button class="text-button" id="clear-storage" type="button">
+            <i data-lucide="trash-2"></i>Очистить локальные данные
+          </button>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="page-kicker">Библиотека</p>
+            <h1 id="page-title">Профили подключения</h1>
+          </div>
+          <div class="top-actions">
+            <button class="icon-button" id="theme-toggle" type="button" title="Сменить тему" aria-label="Сменить тему">
+              <i data-lucide="sun-moon"></i>
+            </button>
+            <button class="button secondary" id="import-profile" type="button">
+              <i data-lucide="scan-line"></i>Импорт ссылки
+            </button>
+            <button class="button primary" id="new-profile" type="button">
+              <i data-lucide="plus"></i>Новый профиль
+            </button>
+          </div>
+        </header>
+
+        <section class="view active" id="profiles-view">
+          <div class="overview-strip">
+            <div class="metric"><span>Всего профилей</span><strong id="profile-count">0</strong></div>
+            <div class="metric"><span>С TLS / Reality</span><strong id="secure-count">0</strong></div>
+            <div class="metric"><span>Последняя проверка</span><strong id="last-check">-</strong></div>
+            <div class="topology" aria-hidden="true">
+              <span class="node origin"></span><span class="line"></span><span class="node relay"></span><span class="line short"></span><span class="node destination"></span>
+            </div>
+          </div>
+
+          <div class="library-toolbar">
+            <label class="search-field">
+              <i data-lucide="search"></i>
+              <input id="profile-search" type="search" placeholder="Поиск по имени, серверу или протоколу" autocomplete="off" />
+            </label>
+            <div class="segmented" aria-label="Фильтр профилей">
+              <button type="button" class="active" data-filter="all">Все</button>
+              <button type="button" data-filter="vless">VLESS</button>
+              <button type="button" data-filter="other">Другие</button>
+            </div>
+          </div>
+
+          <div class="profile-grid" id="profile-grid"></div>
+          <div class="empty-state" id="empty-state" hidden>
+            <i data-lucide="inbox"></i>
+            <h2>Профилей пока нет</h2>
+            <p>Импортируйте ссылку или создайте подключение вручную.</p>
+            <button class="button primary" id="empty-new-profile" type="button"><i data-lucide="plus"></i>Создать профиль</button>
+          </div>
+        </section>
+
+        <section class="view" id="composer-view">
+          <div class="composer-layout">
+            <aside class="composer-list-panel">
+              <div class="panel-heading">
+                <span>Профили</span>
+                <button class="icon-button compact" id="composer-new-profile" type="button" title="Новый профиль" aria-label="Новый профиль"><i data-lucide="plus"></i></button>
+              </div>
+              <div class="composer-profile-list" id="composer-profile-list"></div>
+            </aside>
+
+            <form class="editor" id="profile-form" novalidate>
+              <div class="editor-heading">
+                <div>
+                  <p class="eyebrow">Редактор профиля</p>
+                  <h2 id="editor-profile-title">Новый профиль</h2>
+                </div>
+                <div class="editor-actions">
+                  <button class="button secondary" id="duplicate-profile" type="button"><i data-lucide="copy"></i>Дублировать</button>
+                  <button class="button primary" type="submit"><i data-lucide="save"></i>Сохранить</button>
+                </div>
+              </div>
+
+              <section class="form-section">
+                <div class="section-title"><i data-lucide="tag"></i><div><h3>Идентификация</h3><p>Имя видно только в вашем списке профилей.</p></div></div>
+                <div class="form-grid two">
+                  <label>Название<input name="name" required maxlength="80" placeholder="Например, основной сервер" /></label>
+                  <label>Протокол
+                    <select name="protocol" id="protocol-select">
+                      <option value="vless">VLESS</option>
+                      <option value="vmess">VMess</option>
+                      <option value="trojan">Trojan</option>
+                      <option value="shadowsocks">Shadowsocks</option>
+                      <option value="hysteria2">Hysteria 2</option>
+                      <option value="tuic">TUIC</option>
+                    </select>
+                  </label>
+                </div>
+              </section>
+
+              <section class="form-section">
+                <div class="section-title"><i data-lucide="server"></i><div><h3>Сервер</h3><p>Адрес и порт удалённого узла.</p></div></div>
+                <div class="form-grid three">
+                  <label class="span-2">Адрес сервера<input name="server" required placeholder="example.com или 203.0.113.10" /></label>
+                  <label>Порт<input name="port" required type="number" min="1" max="65535" placeholder="443" /></label>
+                </div>
+              </section>
+
+              <section class="form-section" id="credentials-section">
+                <div class="section-title"><i data-lucide="key-round"></i><div><h3>Учётные данные</h3><p id="credentials-hint">Идентификатор пользователя для сервера.</p></div></div>
+                <div class="form-grid two" id="credentials-fields"></div>
+              </section>
+
+              <section class="form-section" id="transport-section">
+                <div class="section-title"><i data-lucide="waypoints"></i><div><h3>Транспорт</h3><p>Выберите согласованный с сервером механизм доставки трафика.</p></div></div>
+                <div class="form-grid two">
+                  <label>Тип транспорта
+                    <select name="transport" id="transport-select">
+                      <option value="tcp">TCP</option>
+                      <option value="ws">WebSocket</option>
+                      <option value="grpc">gRPC</option>
+                      <option value="httpupgrade">HTTPUpgrade</option>
+                      <option value="http">HTTP/2</option>
+                    </select>
+                  </label>
+                  <label>Поток данных
+                    <select name="network"><option value="tcp">TCP</option><option value="udp">UDP</option><option value="both">TCP + UDP</option></select>
+                  </label>
+                </div>
+                <div class="form-grid two transport-options" id="transport-options"></div>
+              </section>
+
+              <section class="form-section" id="security-section">
+                <div class="section-title"><i data-lucide="lock-keyhole"></i><div><h3>Безопасность</h3><p>Параметры должны совпадать с конфигурацией сервера.</p></div></div>
+                <div class="form-grid two">
+                  <label>Режим
+                    <select name="security" id="security-select">
+                      <option value="none">Без TLS</option>
+                      <option value="tls">TLS</option>
+                      <option value="reality">Reality</option>
+                    </select>
+                  </label>
+                  <label>Домен SNI<input name="sni" placeholder="cdn.example.com" /></label>
+                </div>
+                <div class="form-grid two security-options" id="security-options"></div>
+              </section>
+
+              <section class="form-section advanced-section">
+                <button class="advanced-toggle" id="advanced-toggle" type="button" aria-expanded="false">
+                  <span><i data-lucide="settings-2"></i>Дополнительные параметры</span><i data-lucide="chevron-down"></i>
+                </button>
+                <div class="advanced-content" id="advanced-content" hidden>
+                  <div class="form-grid two">
+                    <label>Тег для JSON<input name="tag" placeholder="proxy-main" pattern="[a-zA-Z0-9_-]+" /></label>
+                    <label>Заметка<input name="note" placeholder="Локальный комментарий" maxlength="140" /></label>
+                  </div>
+                </div>
+              </section>
+            </form>
+
+            <aside class="preview-panel">
+              <div class="preview-heading"><span>Готовая конфигурация</span><span class="validity" id="validity"><i data-lucide="circle-alert"></i>Нужны данные</span></div>
+              <div class="preview-tabs" role="tablist">
+                <button class="active" data-preview="uri" type="button">Ссылка</button>
+                <button data-preview="singbox" type="button">sing-box</button>
+              </div>
+              <pre class="code-preview" id="code-preview"></pre>
+              <div class="preview-actions">
+                <button class="button secondary" id="copy-output" type="button"><i data-lucide="copy"></i>Копировать</button>
+                <button class="button secondary" id="download-output" type="button"><i data-lucide="download"></i>Скачать JSON</button>
+              </div>
+              <div class="validation-box" id="validation-box">
+                <i data-lucide="info"></i><p>Заполните обязательные поля. Проверка подтверждает формат данных, но не доступность сервера.</p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view" id="templates-view">
+          <div class="template-intro">
+            <p class="eyebrow">Быстрый старт</p>
+            <h2>Шаблоны для чистой конфигурации</h2>
+            <p>Создайте профиль с преднастроенными полями, затем внесите данные своего сервера.</p>
+          </div>
+          <div class="template-grid" id="template-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="modal" id="import-modal">
+      <form method="dialog" class="modal-card" id="import-form">
+        <div class="modal-heading"><div><p class="eyebrow">Импорт</p><h2>Вставьте ссылку профиля</h2></div><button class="icon-button" value="cancel" type="submit" title="Закрыть" aria-label="Закрыть"><i data-lucide="x"></i></button></div>
+        <p class="modal-copy">Поддерживаются VLESS, VMess, Trojan, Shadowsocks, Hysteria2 и TUIC. Импорт выполняется на устройстве.</p>
+        <textarea id="import-input" rows="6" placeholder="vless://uuid@example.com:443?security=reality&type=grpc...#Мой сервер" required></textarea>
+        <p class="form-error" id="import-error" role="alert"></p>
+        <div class="modal-actions"><button class="button secondary" value="cancel" type="submit">Отмена</button><button class="button primary" id="import-submit" type="button"><i data-lucide="arrow-down-to-line"></i>Импортировать</button></div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
